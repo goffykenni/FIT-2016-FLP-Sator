@@ -1,0 +1,9 @@
+/**
+Reads a number n from the standard input. Then reads
+n following lines from standard input, strips them from any
+punctuation a prints them out.
+*/
+#include <stdio.h>
+int main(int argc, char* argv[]) {
+  printf("Ahoj");
+}

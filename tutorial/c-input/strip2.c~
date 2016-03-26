@@ -1,0 +1,78 @@
+/**
+Reads a number n from the standard input. Then reads
+n following lines from standard input, strips them from any
+punctuation a prints them out.
+
+This is approach #2
+*/
+#include <stdio.h>
+#include <math.h>
+
+/* 10000 according to spec. + 2 for terminator and new-line character,
+which is saved by fgets into the buffer. */
+#define BUF_SIZE 10002
+
+/* Strips the given zero-terminated string from all characters
+but non-capital leters (a-z). */
+int strip(char *buff) {
+  int position = 0, offset = 0;
+  while (buff[position] != '\0') {
+    if (buff[position] >= 'a' && buff[position] <= 'z')
+      buff[position - offset] = buff[position];
+    else
+      offset++;
+    position++;
+  }
+  buff[position - offset] = '\0';
+  return position - offset;
+}
+
+int integer_sqrt(int n) {
+  double root = sqrt(n);
+  double floored_root = floor(sqrt(n));
+  return root == floored_root ? root : 0;
+}
+
+int get_grid_size(const char *buff, int len) {
+  /* First check, if it can fit some square at all */
+  int size = integer_sqrt(len);
+  if (size) { 
+    /*printf("Budu testovat mrizku\n");
+    printf("len=%d size=%d\n", len, size);
+    printf("%c\n", buff[len - 1]);*/
+    int row, col, lin_pos, tr_lin_pos;
+    char c;
+    for (row = 0; row < size; row++) {
+      for (col = row; col < size; col++) {
+        /*printf("row=%d col=%d\n", row, col);*/
+        lin_pos = col + row * size;
+        tr_lin_pos = row + col * size;
+        c = buff[lin_pos];
+        /* Three positions to check */
+        if (buff[len - lin_pos - 1] != c ||
+            buff[tr_lin_pos] != c ||
+            buff[len - tr_lin_pos - 1] != c)
+          return 0;          
+      }
+    }
+  }  
+  return size;
+}
+
+int main(int argc, char* argv[]) {
+  int linecount = 0;
+  char buff[BUF_SIZE];
+  
+  int linesread = 0;
+  scanf("%d ", &linecount);
+  int i, len, result;
+  for (i = 1; i <= linecount; i++) {
+    fgets(buff, BUF_SIZE, stdin);
+    len = strip(buff);
+    /* Process here */
+    result = get_grid_size(buff, len);
+    /* Write output here */
+    printf("Test %d: (len=%d): %s >> %d\n", i, len, "N/A", result);
+  }
+
+}
