@@ -75,16 +75,45 @@
   )
 )
 
-(defun sator(lst)
+(defun sator (lst)
   (setf pal (isPalindrome lst))
-  (if (null (car pal))
-    nil
-    (if (isqrt (car (cdr pal)))      
+  (if (and
+      ; Vstup je palindrom
+      (not (null (car pal))) 
+      ; Da se presne vepsat do ctverce
+      (= ( square (isqrt (car (cdr pal))) ) (car (cdr pal)) )
+      ; Transponovany vstup je taky palindrom a cte se stejne jako puvodni retez
       (let ( (trans (transpose (toMatrix lst (car (cdr pal)) T) T)) )
-        (and (equalp T (car (isPalindrome trans))) (cmpLists lst trans)))
-      nil
-) ) )
-  
+        (and (equalp T (car (isPalindrome trans))) (cmpLists lst trans)) 
+      ))
+    (isqrt (car (cdr pal)))
+    0
+) )
+    
+
+(defun square (n)
+  (* n n))
+
+(defun get-file (filename)
+(let ((in (open filename :if-does-not-exist nil)))
+  (when in
+    (let ( (cnt (parse-integer (read-line in nil 0))) )
+      (loop for i from 1 to cnt
+        do (format T "test ~A: ~A~%" i (sator (str-to-lst (read-line in nil))))
+    ))
+         
+    (close in)
+  )
+))
+          
+(defun str-to-lst (str)
+  (with-input-from-string (s str)
+    (loop for ch = (read-char s nil)
+      while ch collect ch)
+) )
+
+          
+(get-file "loki.txt")  
 
   ; Over jestli je to klasicka palindrom
   ; Pouzij zjistenou delku a zjiti, jestli je to ctverec
@@ -97,4 +126,4 @@
 ;(print (transpose '( (1 2 3 4) (5 6 7 8) (9 10 11 12) (13 14 15 16)) nil nil ))
 ;(print (transpose (toMatrix '(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15) 4 T) T))
 ;(print (toMatrix '(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16) 4 nil))
- (print (sator '(s a t o r a r e p o t e n e t o p e r a r o t a s)))
+;(print (sator '(s a t o r a r e p o t e n e t o p e r a r o t a s)))
