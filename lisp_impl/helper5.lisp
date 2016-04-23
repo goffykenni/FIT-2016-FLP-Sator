@@ -99,7 +99,8 @@
   (when in
     (let ( (cnt (parse-integer (read-line in nil 0))) )
       (loop for i from 1 to cnt
-        do (format T "test ~A: ~A~%" i (sator (str-to-lst (read-line in nil))))
+        do (format T "test ~A: ~A~%" i
+          (sator (filter-input (str-to-lst (read-line in nil)) *forbidden-chars* )))
     ))
          
     (close in)
@@ -112,8 +113,28 @@
       while ch collect ch)
 ) )
 
+(defun filter-input (lst h)
+  (defun work (lst acc)
+    (if (null lst)
+      (reverse acc)
+      (if (gethash (car lst) h)
+        (work (cdr lst) acc)
+        (work (cdr lst) (cons (car lst) acc))
+      )
+) ) (work lst nil) )
+
+(defun fill-hash (h forbidden-list)
+  (if (not (null forbidden-list))
+    (progn 
+      (setf (gethash (car forbidden-list) h) T)
+      (fill-hash h (cdr forbidden-list))
+) ) )
           
-(get-file "loki.txt")  
+
+
+(defparameter *forbidden-chars* (make-hash-table))
+(fill-hash *forbidden-chars* '(#\Space #\, #\. #\! #\( #\)))
+(get-file "loki.txt")
 
   ; Over jestli je to klasicka palindrom
   ; Pouzij zjistenou delku a zjiti, jestli je to ctverec
