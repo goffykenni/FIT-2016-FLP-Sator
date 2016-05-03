@@ -20,12 +20,15 @@
     ( T nil )
 ) )
 
+; Vezme seznam a vytvori z nej matici (seznam radkovych vektoru - seznamu),
+; ktera bude mit zadany pocet sloupecku. V pripade, ze delku vstupniho seznamu
+; nelze celociselne delit pozadovanym poctem sloupecku, pak budou na zacatek prvniho
+; radku pripnuty hodnoty NIL.
+; @param lst - vstupni seznam
+; @param colCount - pozadovany pocet prvku matice
+; @param keepReversed - Pokud true, pak se bude seznam cist pozpatku, jinak 
+;       normalne od predu (a zavola se pred vracenim reverse)
 (defun toMatrix (lst colCount keepReversed)
-  (defun initEmpty (n)
-    (if (= 0 n)
-      nil
-      (cons () (initEmpty (- n 1)))
-  ) )
   
   (defun work (lst i n acc)
     (if (null lst)
@@ -49,7 +52,12 @@
 )
         
 
-; Vezme matici a projde ji po sloupcich a vrati seznam
+; Linearizuje transpozici dane matice, tzn. vezme vstupni matici a
+; vrati list prvku pruchodem matice po sloupcich.
+; @param m - Matice prvku zadana jako seznam radkovych "vektoru", tj. seznam seznamu.
+;       Obecne neni nutne, aby radky meli stejny pocet prvku.
+; @param keepReversed - Pokud je true, vrati linearizaci obracenou (od konce), pokud
+;       false, tak linearizaci jeste pred vracenim otoci zavolanim reverse.
 (defun transpose (m keepReversed)
 
   (defun transpose2 (m stripped acc)
@@ -75,6 +83,9 @@
   )
 )
 
+; Posloupnosti testu rozhodne, zda dany retezec reprezentovany jako seznam
+; jednotlivych znaku, vyhovuje podminkam zadani.
+; @param lst - Jiz odfiltrovany seznam znaku v reteci
 (defun sator (lst)
   (setf pal (isPalindrome lst))
   (if (and
@@ -94,6 +105,9 @@
 (defun square (n)
   (* n n))
 
+; Otevre soubour o nemz predpoklada format pozadovany zadanim a pak
+; ho v souladu s timto formatem cte radek po radku.
+; Nejdriv precte pocet radku a pak na kazdy radek aplikuje algoritmus.
 (defun get-file (filename)
 (let ((in (open filename :if-does-not-exist nil)))
   (when in
@@ -101,18 +115,21 @@
       (loop for i from 1 to cnt
         do (format T "test ~A: ~A~%" i
           (sator (filter-input (str-to-lst (read-line in nil)) *forbidden-chars* )))
-    ))
+    ) )
          
     (close in)
   )
 ))
-          
+  
+; Nacte retezec do seznamu znaku
 (defun str-to-lst (str)
   (with-input-from-string (s str)
     (loop for ch = (read-char s nil)
       while ch collect ch)
 ) )
 
+; Filtruje vstupni seznam znaku podle hashovaci tabulky
+; zakazanych znaku.
 (defun filter-input (lst h)
   (defun work (lst acc)
     (if (null lst)
@@ -123,6 +140,7 @@
       )
 ) ) (work lst nil) )
 
+; Naplni hashovaci tabulku znaky v seznamu zakazanych znaku
 (defun fill-hash (h forbidden-list)
   (if (not (null forbidden-list))
     (progn 
