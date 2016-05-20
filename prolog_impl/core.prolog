@@ -131,3 +131,65 @@ sator(L, GridSize) :-
   transpose_rev(Grid, TransposedGrid),
   flatten_rev(TransposedGrid, TransFlattened),
   lst_eql(L, TransFlattened).
+  
+%******************Input filtering
+forbidden_ch(' ').
+forbidden_ch(',').
+forbidden_ch('.').
+forbidden_ch('!').
+forbidden_ch('(').
+forbidden_ch(')').
+
+forbidden_code(Code) :-
+  char_code(Char, Code),
+  forbidden_ch(Char).
+  
+%=== filter_coded_input(+L, ?R)
+filter_coded_input([], []).
+filter_coded_input([H | T], R) :- 
+  forbidden_code(H),
+  filter_coded_input(T, R).
+filter_coded_input([H | T], [H | T1]) :- filter_coded_input(T, T1).
+  
+%=== filter_char_input(+L, ?R)
+filter_char_input([], []).
+filter_char_input([H | T], R) :-
+  forbidden_ch(H),
+  filter_char_input(T, R), !.
+filter_char_input([H | T], [H | T1]) :- filter_char_input(T, T1).
+  
+  
+%******************Input reading
+main :-
+    open('input.txt', read, Str),
+    read_line_count(Str, N),
+    read_lines(Str, 1, N),
+    close(Str).
+
+%=== read_line_count(+Stream, -Count)
+read_line_count(Stream, Count) :-
+  read(Stream, Count),
+  number(Count),
+  Count > 0.
+
+%=== read_lines(+Stream, +Count, -Lines)
+read_lines(_, N, N).
+read_lines(Stream, _, _) :- at_end_of_stream(Stream).
+
+read_lines(Stream, K, Count) :-
+  K < Count,
+  K1 is K + 1,
+  read_line_to_codes(Stream, Line),
+  filter_coded_input(Line, FilteredLine),
+  write('Test '), write(K), write(': '),
+  process_current_input(FilteredLine), nl,
+  read_lines(Stream, K1, Count), !.
+  
+%=== process_current_input(+Line)
+process_current_input(Line) :-
+  sator(Line, GridSize),
+  write(GridSize).
+
+process_current_input(_) :-
+  write(0).
+  
