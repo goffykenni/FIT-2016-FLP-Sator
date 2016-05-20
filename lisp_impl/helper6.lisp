@@ -1,5 +1,3 @@
-(defparameter *forbidden-chars* (make-hash-table))
-
 ; Overi, jestli je retez palindromem, bez potreby obraces list.
 ; Vraci seznam, jehoz prvni prvek je T/nil podle toho, jestli je retez
 ; palindrom a druhy je delka retezce (spocetla se piggybackingem)
@@ -46,7 +44,7 @@
       acc
       (prependNil (cons nil acc) (+ 1 i) n)
   ) )
-  
+  (trace work)
   (if (equalp keepReversed T)
     (work lst 0 colCount nil)
     (work (reverse lst) 0 colCount nil)    
@@ -78,7 +76,7 @@
         nil
       )
   ) )
-  
+  ;(trace transpose2)
   (if (equalp keepReversed T)
     (transpose2 m nil nil)
     (reverse (transpose2 m nil nil))
@@ -89,20 +87,11 @@
 ; jednotlivych znaku, vyhovuje podminkam zadani.
 ; @param lst - Jiz odfiltrovany seznam znaku v reteci
 (defun sator (lst)
-  (let ( (pal (isPalindrome lst)) )
-    (if (and
-        ; Vstup je palindrom
-        (not (null (car pal)))
-        ; Da se presne vepsat do ctverce
-        (= ( square (isqrt (car (cdr pal))) ) (car (cdr pal)) )
-        ; Transponovany vstup je taky palindrom a cte se stejne jako puvodni retez
-        (let ( (trans (transpose (toMatrix lst (car (cdr pal)) T) T)) )
-          (and (equalp T (car (isPalindrome trans))) (cmpLists lst trans)) 
-        ))
-      (isqrt (car (cdr pal)))
-      0
-    )
-) ) 
+  
+  (setf pal (isPalindrome lst))
+  (transpose (toMatrix lst (car (cdr pal)) T) T)
+  (print '(2))
+  )
     
 
 (defun square (n)
@@ -134,14 +123,14 @@
 ; Filtruje vstupni seznam znaku podle hashovaci tabulky
 ; zakazanych znaku.
 (defun filter-input (lst h)
-  (defun filter (lst acc)
+  (defun work (lst acc)
     (if (null lst)
       (reverse acc)
       (if (gethash (car lst) h)
-        (filter (cdr lst) acc)
-        (filter (cdr lst) (cons (car lst) acc))
+        (work (cdr lst) acc)
+        (work (cdr lst) (cons (car lst) acc))
       )
-) ) (filter lst nil) )
+) ) (work lst nil) )
 
 ; Naplni hashovaci tabulku znaky v seznamu zakazanych znaku
 (defun fill-hash (h forbidden-list)
@@ -153,7 +142,7 @@
           
 
 
-
+(defparameter *forbidden-chars* (make-hash-table))
 (fill-hash *forbidden-chars* '(#\Space #\, #\. #\! #\( #\)))
 (get-file "loki.txt")
 
