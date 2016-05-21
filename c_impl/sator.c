@@ -2,11 +2,8 @@
 Reads a number n from the standard input. Then reads
 n following lines from standard input, strips them from any
 punctuation a prints them out.
-
-This is approach #2
 */
 #include <stdio.h>
-#include <math.h>
 
 /* 10000 according to spec. + 2 for terminator and new-line character,
 which is saved by fgets into the buffer. */
@@ -31,9 +28,15 @@ int strip(char *buff) {
 }
 
 int integer_sqrt(int n) {
-  double root = sqrt(n);
-  double floored_root = floor(sqrt(n));
-  return root == floored_root ? root : 0;
+  int exp = 1; int val = 1;
+  if (n < 1)
+    return 0;
+  while (val < n) {
+    ++exp;
+    val = exp * exp;
+  }
+  
+  return (val == n) ? exp : 0;
 }
 
 /* Checks, whether there exists a k > 0 such that the
@@ -70,13 +73,18 @@ int main(int argc, char* argv[]) {
   int i, len, result;
   
   scanf("%d ", &linecount);  
+  printf("Lines to proess: %d\n", linecount);
   for (i = 1; i <= linecount; i++) {
-    fgets(buff, BUF_SIZE, stdin);
-    len = strip(buff);
-    /* Process here */
-    result = get_grid_size(buff, len);
-    /* Write output here */
-    printf("Test %d: (len=%d): %s >> %d\n", i, len, "N/A", result);
+    /* Try reading from standard input */
+    if (fgets(buff, BUF_SIZE, stdin) != NULL) {
+      /* Filter input here */
+      len = strip(buff);
+      /* Process here */
+      result = get_grid_size(buff, len);
+      /* Write output here */
+      /*printf("Test %d: (len=%d): %s >> %d\n", i, len, "N/A", result);*/
+      printf("Test %d: %d\n", i, result);
+    }
   }
   return 0;
 }
