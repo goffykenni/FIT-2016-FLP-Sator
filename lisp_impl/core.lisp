@@ -1,13 +1,13 @@
 (defparameter *forbidden-chars* (make-hash-table))
 
-; Overi, jestli je retez palindromem, bez potreby obraces list.
-; Vraci seznam, jehoz prvni prvek je T/nil podle toho, jestli je retez
-; palindrom a druhy je delka retezce (spocetla se piggybackingem)
+; Overi, jestli je retez palindromem, bez potreby obracet list.
+; Vraci cons bunku jejiz car cast je T/nil podle toho, jestli je retez
+; palindrom a cdr je delka retezce (spocetla se piggybackingem)
 (defun isPalindrome (lst)
   (defun srch (slow fast acc elemCount)
     (cond 
-      ( (null fast) (list (cmpLists acc slow) (* 2 elemCount)) )
-      ( (null (cdr fast)) (list (cmpLists acc (cdr slow)) (+ 1 (* 2 elemCount))) ) 
+      ( (null fast) (cons (cmpLists acc slow) (* 2 elemCount)) )
+      ( (null (cdr fast)) (cons (cmpLists acc (cdr slow)) (+ 1 (* 2 elemCount))) ) 
       ( T ( srch (cdr slow) (cdr (cdr fast)) (cons (car slow) acc) (+ 1 elemCount) ))
 ) )
   (srch lst lst nil 0)
@@ -89,20 +89,22 @@
 ; jednotlivych znaku, vyhovuje podminkam zadani.
 ; @param lst - Jiz odfiltrovany seznam znaku v reteci
 (defun sator (lst)
-  (let ( (pal (isPalindrome lst)) )
-    (if (and
-        ; Vstup je palindrom
-        (not (null (car pal)))
-        ; Da se presne vepsat do ctverce
-        (= ( square (isqrt (car (cdr pal))) ) (car (cdr pal)) )
-        ; Transponovany vstup je taky palindrom a cte se stejne jako puvodni retez
-        (let ( (trans (transpose (toMatrix lst (car (cdr pal)) T) T)) )
-          (and (equalp T (car (isPalindrome trans))) (cmpLists lst trans)) 
-        ))
-      (isqrt (car (cdr pal)))
-      0
-    )
-) ) 
+  ((lambda (pal)
+    ((lambda (gridsize)
+      (if (and
+            ; Vstup je palindrom
+            (not (null (car pal)))
+            ; Da se presne vepsat do ctverce
+            (= (square gridsize) (cdr pal))
+            ; Transponovany vstup se cte stejne jako puvodni retez
+            (cmpLists lst (transpose (toMatrix lst (cdr pal) T) T))
+          )      
+        gridsize
+        0
+      )
+    ) (isqrt (cdr pal)) ) ; Velikost mrizky
+  ) (isPalindrome lst) ) ; Je vstup palindrom
+)
     
 
 (defun square (n)
@@ -155,7 +157,7 @@
 
 
 (fill-hash *forbidden-chars* '(#\Space #\, #\. #\! #\( #\)))
-(get-file "loki.txt")
+(get-file "input.txt")
 
   ; Over jestli je to klasicka palindrom
   ; Pouzij zjistenou delku a zjiti, jestli je to ctverec

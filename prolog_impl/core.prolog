@@ -90,7 +90,7 @@ strip_row([H | ListTail], N, [H | RowTail], L) :-
   
 %=== transpose_rev(+M, ?R), true if and only if matrix R is transposed
 % reversed matrix M.
-% [[1,2,3],[4,5,6],[7,8,9]] -> [[3,6,9], [2,5,8], [1, 4, 7]]
+% [[1,2,3],[4,5,6],[7,8,9]] -> [[9,6,3], [8,5,2], [7,4,1]]
 
 transpose_rev(M, R) :- transpose_rev(M, [], R). % use accumulator
 transpose_rev(M, R, R) :- empty(M), !.
@@ -125,14 +125,15 @@ strip_revcol([[HRow | TRow] | RestRows], A, FirstCol, [TRow | RestCols]) :-
 %  lst_eql(L, TransFlattened).
 
 sator(L, GridSize) :-
-  pal_c(L, ListLen),
-  i_sqrt(ListLen, GridSize),
+  pal_c(L, ListLen), % L must be a palindrom
+  i_sqrt(ListLen, GridSize), % its length must be square
   to_matrix(L, GridSize, Grid),
   transpose_rev(Grid, TransposedGrid),
   flatten_rev(TransposedGrid, TransFlattened),
-  lst_eql(L, TransFlattened).
+  lst_eql(L, TransFlattened). % Transposed grid must read the same way as original grid
   
-%******************Input filtering
+%******************Input filtering*****************
+%Forbidden characters
 forbidden_ch(' ').
 forbidden_ch(',').
 forbidden_ch('.').
@@ -144,7 +145,8 @@ forbidden_code(Code) :-
   char_code(Char, Code),
   forbidden_ch(Char).
   
-%=== filter_coded_input(+L, ?R)
+%=== filter_coded_input(+L, ?R) true, if and only if R is
+% filtered list of character codes L.
 filter_coded_input([], []).
 filter_coded_input([H | T], R) :- 
   forbidden_code(H),
@@ -159,30 +161,38 @@ filter_char_input([H | T], R) :-
 filter_char_input([H | T], [H | T1]) :- filter_char_input(T, T1).
   
   
-%******************Input reading
+%******************Input reading*************************
+% Query main. will "start" the execution. It opens the input file
+% and processes it.
 main :-
     open('input.txt', read, Str),
     read_line_count(Str, N),
-    read_lines(Str, 1, N),
+    read_lines(Str, N),
     close(Str).
 
 %=== read_line_count(+Stream, -Count)
+%read_line_count(Stream, Count) :-
+%  read(Stream, Count),
+%  number(Count),
+%  Count > 0.
+
 read_line_count(Stream, Count) :-
-  read(Stream, Count),
-  number(Count),
+  read_line_to_codes(Stream, R),
+  number_codes(Count, R),
   Count > 0.
 
-%=== read_lines(+Stream, +Count, -Lines)
+%=== read_lines(+Stream, +LineCount)
+read_lines(Stream, LineCount) :- read_lines(Stream, 0, LineCount).
 read_lines(_, N, N).
 read_lines(Stream, _, _) :- at_end_of_stream(Stream).
 
 read_lines(Stream, K, Count) :-
   K < Count,
   K1 is K + 1,
-  read_line_to_codes(Stream, Line),
-  filter_coded_input(Line, FilteredLine),
+  read_line_to_codes(Stream, Line), % Every line will be read as a list of character codes
+  filter_coded_input(Line, FilteredLine), % Filter the line
   write('Test '), write(K), write(': '),
-  process_current_input(FilteredLine), nl,
+  process_current_input(FilteredLine), nl, % Process the line
   read_lines(Stream, K1, Count), !.
   
 %=== process_current_input(+Line)
@@ -192,4 +202,3 @@ process_current_input(Line) :-
 
 process_current_input(_) :-
   write(0).
-  
