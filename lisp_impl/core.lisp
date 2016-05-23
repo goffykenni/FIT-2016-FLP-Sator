@@ -97,7 +97,7 @@
             ; Da se presne vepsat do ctverce
             (= (square gridsize) (cdr pal))
             ; Transponovany vstup se cte stejne jako puvodni retez
-            (cmpLists lst (transpose (toMatrix lst (cdr pal) T) T))
+            (cmpLists lst (transpose (toMatrix lst gridsize T) T))
           )      
         gridsize
         0
