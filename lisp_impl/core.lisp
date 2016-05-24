@@ -6,9 +6,9 @@
 (defun isPalindrome (lst)
   (defun srch (slow fast acc elemCount)
     (cond 
-      ( (null fast) (cons (cmpLists acc slow) (* 2 elemCount)) )
-      ( (null (cdr fast)) (cons (cmpLists acc (cdr slow)) (+ 1 (* 2 elemCount))) ) 
-      ( T ( srch (cdr slow) (cdr (cdr fast)) (cons (car slow) acc) (+ 1 elemCount) ))
+      ( (null fast) (cons (cmpLists acc slow) (* 2 elemCount)) ) ; Suda delka
+      ( (null (cdr fast)) (cons (cmpLists acc (cdr slow)) (+ 1 (* 2 elemCount))) ) ; Licha delka
+      ( t ( srch (cdr slow) (cdr (cdr fast)) (cons (car slow) acc) (+ 1 elemCount) ))
 ) )
   (srch lst lst nil 0)
 )
@@ -19,7 +19,7 @@
     ( (null lstA) (null lstB) )
     ( (null lstB) (null lstA) )
     ( (equalp (car lstA) (car lstB)) (cmpLists (cdr lstA) (cdr lstB)))
-    ( T nil )
+    ( t nil )
 ) )
 
 ; Vezme seznam a vytvori z nej matici (seznam radkovych vektoru - seznamu),
@@ -36,8 +36,8 @@
     (if (null lst)
       (cons (prependNil (car acc) i n) (cdr acc))
       (if (= i n) ; Docetl se radek?
-        (work lst 0 n (cons nil acc))
-        (work (cdr lst) (+ 1 i) n (cons ( cons (car lst) (car acc) ) (cdr acc)) )
+        (work lst 0 n (cons nil acc)) ; pripoj dopredu novy prazdny radek
+        (work (cdr lst) (+ 1 i) n (cons ( cons (car lst) (car acc) ) (cdr acc)) ) ; Do aktualne naplnovaneho radku dej novy prvek
       )
   ) )
   
@@ -47,7 +47,7 @@
       (prependNil (cons nil acc) (+ 1 i) n)
   ) )
   
-  (if (equalp keepReversed T)
+  (if (equalp keepReversed t)
     (work lst 0 colCount nil)
     (work (reverse lst) 0 colCount nil)    
   )
@@ -79,7 +79,7 @@
       )
   ) )
   
-  (if (equalp keepReversed T)
+  (if (equalp keepReversed t)
     (transpose2 m nil nil)
     (reverse (transpose2 m nil nil))
   )
@@ -97,7 +97,7 @@
             ; Da se presne vepsat do ctverce
             (= (square gridsize) (cdr pal))
             ; Transponovany vstup se cte stejne jako puvodni retez
-            (cmpLists lst (transpose (toMatrix lst gridsize T) T))
+            (cmpLists lst (transpose (toMatrix lst gridsize t) t))
           )      
         gridsize
         0
@@ -118,7 +118,7 @@
   (when in
     (let ( (cnt (parse-integer (read-line in nil 0))) )
       (loop for i from 1 to cnt
-        do (format T "test ~A: ~A~%" i
+        do (format t "test ~A: ~A~%" i
           (sator (filter-input (str-to-lst (read-line in nil)) *forbidden-chars* )))
     ) )
          
@@ -149,7 +149,7 @@
 (defun fill-hash (h forbidden-list)
   (if (not (null forbidden-list))
     (progn 
-      (setf (gethash (car forbidden-list) h) T)
+      (setf (gethash (car forbidden-list) h) t)
       (fill-hash h (cdr forbidden-list))
 ) ) )
           
@@ -169,5 +169,5 @@
 ;(print (cmpLists '(1 2 3) '(1 2 3)))
 ;(print (transpose '( (1 2 3 4) (5 6 7 8) (9 10 11 12) (13 14 15 16)) nil nil ))
 ;(print (transpose (toMatrix '(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15) 4 T) T))
-;(print (toMatrix '(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16) 4 nil))
+;(print (toMatrix '(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16) 4 t))
 ;(print (sator '(s a t o r a r e p o t e n e t o p e r a r o t a s)))
